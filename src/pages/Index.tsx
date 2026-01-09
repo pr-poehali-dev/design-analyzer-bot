@@ -121,6 +121,12 @@ export default function Index() {
     toast.success('Скопировано!');
   };
 
+  const downloadFont = (fontName: string) => {
+    const googleFontsUrl = `https://fonts.google.com/?query=${encodeURIComponent(fontName.split(' ')[0])}`;
+    window.open(googleFontsUrl, '_blank');
+    toast.success('Открываю Google Fonts...');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -327,12 +333,29 @@ export default function Index() {
                     {fonts.map((font, index) => (
                       <div
                         key={index}
-                        className="group p-5 bg-gradient-to-r from-muted/50 to-muted/30 rounded-xl hover:shadow-md transition-all cursor-pointer"
-                        onClick={() => copyToClipboard(font.name)}
+                        className="group p-5 bg-gradient-to-r from-muted/50 to-muted/30 rounded-xl hover:shadow-md transition-all"
                       >
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center justify-between mb-3">
                           <span className="text-lg font-semibold">{font.name}</span>
-                          <Icon name="Copy" size={18} className="text-muted-foreground group-hover:text-secondary transition-colors" />
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => copyToClipboard(font.name)}
+                              className="h-8 px-3"
+                            >
+                              <Icon name="Copy" size={16} className="mr-1" />
+                              Копировать
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => downloadFont(font.name)}
+                              className="h-8 px-3 bg-gradient-to-r from-pink-600 to-orange-500 hover:from-pink-700 hover:to-orange-600"
+                            >
+                              <Icon name="Download" size={16} className="mr-1" />
+                              Скачать
+                            </Button>
+                          </div>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="flex-1 bg-white rounded-full h-2.5 overflow-hidden">
