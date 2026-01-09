@@ -86,7 +86,7 @@ export default function Index() {
     };
   };
 
-  const analyzeFonts = () => {
+  const analyzeFonts = async () => {
     if (!selectedImage) {
       toast.error('Загрузите изображение');
       return;
@@ -94,26 +94,46 @@ export default function Index() {
     
     setAnalyzing(true);
     
-    setTimeout(() => {
-      const mockFonts = [
-        { name: 'Montserrat Bold', similarity: 99 },
-        { name: 'Inter SemiBold', similarity: 97 },
-        { name: 'Poppins Medium', similarity: 95 },
-        { name: 'Roboto Regular', similarity: 93 }
-      ];
-      setFonts(mockFonts);
-      
-      const newHistoryItem: HistoryItem = {
-        id: Date.now().toString(),
-        type: 'fonts',
-        timestamp: new Date(),
-        data: mockFonts
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result as string;
+        
+        const response = await fetch('https://functions.poehali.dev/c9a5a238-d39f-4ad4-aba2-0d057e6c0ba9', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ image: base64Image })
+        });
+        
+        const data = await response.json();
+        
+        if (data.fonts) {
+          setFonts(data.fonts);
+          
+          const newHistoryItem: HistoryItem = {
+            id: Date.now().toString(),
+            type: 'fonts',
+            timestamp: new Date(),
+            data: data.fonts
+          };
+          setHistory([newHistoryItem, ...history]);
+          
+          toast.success('Шрифты найдены с точностью 99.9%!');
+        } else {
+          toast.error('Ошибка при анализе шрифтов');
+        }
+        
+        setAnalyzing(false);
       };
-      setHistory([newHistoryItem, ...history]);
       
+      reader.readAsDataURL(selectedImage);
+    } catch (error) {
+      console.error('Ошибка анализа шрифтов:', error);
       setAnalyzing(false);
-      toast.success('Шрифты найдены с точностью 99.9%!');
-    }, 2000);
+      toast.error('Ошибка при анализе шрифтов');
+    }
   };
 
   const copyToClipboard = (text: string) => {
