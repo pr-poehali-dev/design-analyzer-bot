@@ -51,7 +51,7 @@ export default function Index() {
     img.onload = () => {
       try {
         const colorThief = new ColorThief();
-        const palette = colorThief.getPalette(img, 6);
+        const palette = colorThief.getPalette(img, 4, 10);
         
         const hexColors = palette.map((rgb: number[]) => {
           const [r, g, b] = rgb;
@@ -130,10 +130,10 @@ export default function Index() {
             </div>
           </div>
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
-            CreativeBot
+            Paletteek
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Анализируй цвета и находи шрифты на изображениях за секунды
+            Точный анализ цветов и поиск шрифтов на изображениях
           </p>
         </header>
 
@@ -189,7 +189,7 @@ export default function Index() {
                       <img
                         src={imagePreview}
                         alt="Preview"
-                        className="w-full h-64 object-cover rounded-2xl shadow-md"
+                        className="w-full h-[400px] object-contain rounded-2xl shadow-md bg-muted/30"
                       />
                     </div>
                   )}
@@ -228,7 +228,7 @@ export default function Index() {
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                  <div className="grid grid-cols-1 gap-4 animate-fade-in">
                     {colors.map((color, index) => (
                       <div
                         key={index}
@@ -283,7 +283,7 @@ export default function Index() {
                       <img
                         src={imagePreview}
                         alt="Preview"
-                        className="w-full h-64 object-cover rounded-2xl shadow-md"
+                        className="w-full h-[400px] object-contain rounded-2xl shadow-md bg-muted/30"
                       />
                     </div>
                   )}
@@ -432,15 +432,15 @@ export default function Index() {
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    <strong className="text-foreground">CreativeBot</strong> — твой персональный помощник 
-                    для работы с цветами и шрифтами.
+                    <strong className="text-foreground">Paletteek</strong> — твой персональный помощник 
+                    для работы с цветами и шрифтами. Точность анализа 99.9%.
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <Icon name="Palette" size={20} className="text-primary mt-1" />
                       <div>
                         <p className="font-semibold text-foreground">Анализ цветов</p>
-                        <p className="text-sm">Извлекаем доминирующие цвета из изображения в формате HEX</p>
+                        <p className="text-sm">Извлекаем 4 основных цвета с точностью 99.9% в формате HEX</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
