@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import ColorThief from 'colorthief';
 
 type HistoryItem = {
   id: string;
@@ -36,31 +37,53 @@ export default function Index() {
   };
 
   const analyzeColors = () => {
-    if (!selectedImage) {
+    if (!selectedImage || !imagePreview) {
       toast.error('Загрузите изображение');
       return;
     }
     
     setAnalyzing(true);
     
-    setTimeout(() => {
-      const mockColors = [
-        '#8B5CF6', '#D946EF', '#F97316', 
-        '#0EA5E9', '#1A1F2C', '#F1F5F9'
-      ];
-      setColors(mockColors);
-      
-      const newHistoryItem: HistoryItem = {
-        id: Date.now().toString(),
-        type: 'colors',
-        timestamp: new Date(),
-        data: mockColors
-      };
-      setHistory([newHistoryItem, ...history]);
-      
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.src = imagePreview;
+    
+    img.onload = () => {
+      try {
+        const colorThief = new ColorThief();
+        const palette = colorThief.getPalette(img, 6);
+        
+        const hexColors = palette.map((rgb: number[]) => {
+          const [r, g, b] = rgb;
+          return '#' + [r, g, b].map(x => {
+            const hex = x.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+          }).join('').toUpperCase();
+        });
+        
+        setColors(hexColors);
+        
+        const newHistoryItem: HistoryItem = {
+          id: Date.now().toString(),
+          type: 'colors',
+          timestamp: new Date(),
+          data: hexColors
+        };
+        setHistory([newHistoryItem, ...history]);
+        
+        setAnalyzing(false);
+        toast.success('Палитра извлечена!');
+      } catch (error) {
+        console.error('Ошибка анализа:', error);
+        setAnalyzing(false);
+        toast.error('Ошибка при анализе изображения');
+      }
+    };
+    
+    img.onerror = () => {
       setAnalyzing(false);
-      toast.success('Палитра извлечена!');
-    }, 1500);
+      toast.error('Ошибка загрузки изображения');
+    };
   };
 
   const analyzeFonts = () => {
