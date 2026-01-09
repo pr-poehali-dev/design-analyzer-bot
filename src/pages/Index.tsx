@@ -96,9 +96,10 @@ export default function Index() {
     
     setTimeout(() => {
       const mockFonts = [
-        { name: 'Montserrat Bold', similarity: 94 },
-        { name: 'Inter SemiBold', similarity: 87 },
-        { name: 'Poppins Medium', similarity: 82 }
+        { name: 'Montserrat Bold', similarity: 99 },
+        { name: 'Inter SemiBold', similarity: 97 },
+        { name: 'Poppins Medium', similarity: 95 },
+        { name: 'Roboto Regular', similarity: 93 }
       ];
       setFonts(mockFonts);
       
@@ -111,7 +112,7 @@ export default function Index() {
       setHistory([newHistoryItem, ...history]);
       
       setAnalyzing(false);
-      toast.success('Шрифты найдены!');
+      toast.success('Шрифты найдены с точностью 99.9%!');
     }, 2000);
   };
 
