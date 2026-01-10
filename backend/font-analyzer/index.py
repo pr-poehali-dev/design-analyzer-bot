@@ -3,6 +3,38 @@ import base64
 import io
 import random
 from PIL import Image, ImageStat
+from collections import Counter
+
+def extract_dominant_colors(img, num_colors=8):
+    '''Извлекает доминирующие цвета из изображения с улучшенной точностью'''
+    img_small = img.resize((150, 150))
+    pixels = list(img_small.getdata())
+    
+    color_count = Counter(pixels)
+    most_common = color_count.most_common(num_colors * 2)
+    
+    colors_hex = []
+    total_pixels = sum(count for _, count in most_common)
+    
+    for color, count in most_common:
+        percentage = (count / total_pixels) * 100
+        if percentage > 1:
+            if len(color) == 4:
+                r, g, b, a = color
+            else:
+                r, g, b = color
+            
+            hex_color = '#{:02x}{:02x}{:02x}'.format(r, g, b)
+            colors_hex.append({
+                'hex': hex_color.upper(),
+                'rgb': {'r': r, 'g': g, 'b': b},
+                'percentage': round(percentage, 2)
+            })
+            
+            if len(colors_hex) >= num_colors:
+                break
+    
+    return colors_hex
 
 def handler(event: dict, context) -> dict:
     '''Анализирует шрифты на изображении на основе визуальных характеристик и определяет наиболее похожие шрифты'''
@@ -17,7 +49,8 @@ def handler(event: dict, context) -> dict:
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     if method != 'POST':
@@ -27,7 +60,8 @@ def handler(event: dict, context) -> dict:
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'error': 'Method not allowed'})
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
         }
     
     try:
@@ -41,26 +75,27 @@ def handler(event: dict, context) -> dict:
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'No image provided'})
+                'body': json.dumps({'error': 'No image provided'}),
+                'isBase64Encoded': False
             }
         
-        # Декодируем base64 изображение
         if ',' in image_data:
             image_data = image_data.split(',')[1]
         
         img_bytes = base64.b64decode(image_data)
         img = Image.open(io.BytesIO(img_bytes))
         
-        # Конвертируем в RGB если нужно
-        if img.mode != 'RGB':
+        if img.mode == 'RGBA':
+            img = img.convert('RGB')
+        elif img.mode != 'RGB':
             img = img.convert('RGB')
         
-        # Анализ визуальных характеристик изображения
+        colors = extract_dominant_colors(img, num_colors=10)
+        
         stat = ImageStat.Stat(img)
         brightness = sum(stat.mean) / len(stat.mean)
         contrast = sum(stat.stddev) / len(stat.stddev)
         
-        # База популярных шрифтов для сопоставления
         font_database = [
             'Montserrat', 'Inter', 'Roboto', 'Poppins', 'Open Sans',
             'Lato', 'Raleway', 'Playfair Display', 'Oswald', 'Merriweather',
@@ -68,7 +103,6 @@ def handler(event: dict, context) -> dict:
             'Fira Sans', 'Mukta', 'Quicksand', 'Barlow', 'Josefin Sans'
         ]
         
-        # Определяем стиль на основе характеристик изображения
         if brightness > 200:
             weights = ['Light', 'Regular', 'Medium']
         elif brightness > 100:
@@ -79,7 +113,6 @@ def handler(event: dict, context) -> dict:
         if contrast > 80:
             weights = ['Bold', 'Black'] + weights
         
-        # Генерируем уникальные результаты на основе изображения
         seed_value = hash(image_data[:200] + str(img.size))
         random.seed(seed_value)
         
@@ -102,8 +135,10 @@ def handler(event: dict, context) -> dict:
             },
             'body': json.dumps({
                 'fonts': results,
+                'colors': colors,
                 'textDetected': True
-            })
+            }),
+            'isBase64Encoded': False
         }
         
     except Exception as e:
@@ -113,5 +148,6 @@ def handler(event: dict, context) -> dict:
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
         }

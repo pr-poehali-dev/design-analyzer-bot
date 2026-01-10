@@ -10,6 +10,7 @@
       "expectedStatus": 200,
       "expectedBody": {
         "fonts": "array",
+        "colors": "array",
         "textDetected": "boolean"
       },
       "bodyMatcher": "partial"

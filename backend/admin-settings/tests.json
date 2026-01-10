@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Test GET settings and blocks",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Test POST save settings",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "colors": {
+          "primary": "#9333ea",
+          "secondary": "#ec4899"
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test OPTIONS for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

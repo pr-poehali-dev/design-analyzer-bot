@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import ColorThief from 'colorthief';
+import ColorPicker from '@/components/ColorPicker';
 
 type HistoryItem = {
   id: string;
@@ -241,40 +242,51 @@ export default function Index() {
                 </div>
               </Card>
 
-              <Card className="p-8 shadow-lg border-0 bg-white/80 backdrop-blur">
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <Icon name="Palette" size={24} className="text-primary" />
-                  Цветовая палитра
-                </h2>
+              <div className="space-y-6">
+                <Card className="p-8 shadow-lg border-0 bg-white/80 backdrop-blur">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <Icon name="Palette" size={24} className="text-primary" />
+                    Цветовая палитра
+                  </h2>
 
-                {colors.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-64 text-center">
-                    <Icon name="Palette" size={64} className="text-muted-foreground/30 mb-4" />
-                    <p className="text-muted-foreground">
-                      Загрузите изображение и нажмите "Извлечь цвета"
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-4 animate-fade-in">
-                    {colors.map((color, index) => (
-                      <div
-                        key={index}
-                        className="group cursor-pointer"
-                        onClick={() => copyToClipboard(color)}
-                      >
+                  {colors.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-64 text-center">
+                      <Icon name="Palette" size={64} className="text-muted-foreground/30 mb-4" />
+                      <p className="text-muted-foreground">
+                        Загрузите изображение и нажмите "Извлечь цвета"
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-4 animate-fade-in">
+                      {colors.map((color, index) => (
                         <div
-                          className="h-24 rounded-xl shadow-md mb-3 transition-transform group-hover:scale-105"
-                          style={{ backgroundColor: color }}
-                        />
-                        <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2">
-                          <span className="font-mono font-semibold">{color}</span>
-                          <Icon name="Copy" size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                          key={index}
+                          className="group cursor-pointer"
+                          onClick={() => copyToClipboard(color)}
+                        >
+                          <div
+                            className="h-24 rounded-xl shadow-md mb-3 transition-transform group-hover:scale-105"
+                            style={{ backgroundColor: color }}
+                          />
+                          <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2">
+                            <span className="font-mono font-semibold">{color}</span>
+                            <Icon name="Copy" size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+
+                {imagePreview && (
+                  <ColorPicker 
+                    imageUrl={imagePreview} 
+                    onColorPick={(color) => {
+                      setColors([color.hex, ...colors.filter(c => c !== color.hex).slice(0, 3)]);
+                    }}
+                  />
                 )}
-              </Card>
+              </div>
             </div>
           </TabsContent>
 
